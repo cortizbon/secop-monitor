@@ -16,6 +16,8 @@ from pipeline.config import (
     REPORT_PERIOD_DIRECTORIES,
     RETENTION_DAYS,
     SECOP_SOURCES,
+    SEMANTIC_SIMILARITY_MIN,
+    SEMANTIC_TOP_K,
     WEEKLY_CONTRACTS_PATH,
     WEEKLY_DAYS,
     ensure_directories,
@@ -107,7 +109,12 @@ def run_semantic_report(query: str) -> None:
     ensure_directories()
     now = _now_utc()
     weekly_contracts = load_contracts(WEEKLY_CONTRACTS_PATH)
-    result = search_contracts(weekly_contracts, query=query, top_k=50)
+    result = search_contracts(
+        weekly_contracts,
+        query=query,
+        top_k=SEMANTIC_TOP_K,
+        similarity_min=SEMANTIC_SIMILARITY_MIN,
+    )
     output_path = semantic_report_path(REPORT_PERIOD_DIRECTORIES["custom"], query, _timestamp_slug())
     render_report(
         result,

@@ -19,6 +19,9 @@ SOCRATA_APP_TOKEN = os.getenv("SOCRATA_APP_TOKEN", "").strip()
 SOCRATA_PAGE_SIZE = int(os.getenv("SOCRATA_PAGE_SIZE", "50000"))
 SEMANTIC_SEARCH_MODULE = os.getenv("SEMANTIC_SEARCH_MODULE", "").strip()
 DEFAULT_SEMANTIC_QUERY = os.getenv("DEFAULT_SEMANTIC_QUERY", "").strip()
+SEMANTIC_MODEL_NAME = os.getenv("SEMANTIC_MODEL_NAME", "paraphrase-multilingual-MiniLM-L12-v2").strip()
+SEMANTIC_SIMILARITY_MIN = float(os.getenv("SEMANTIC_SIMILARITY_MIN", "0.25"))
+SEMANTIC_TOP_K = int(os.getenv("SEMANTIC_TOP_K", "250"))
 
 SECOP_SOURCES = {
     "secop_i": {

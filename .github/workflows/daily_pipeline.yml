@@ -32,6 +32,9 @@ jobs:
       SECOP_TIMEOUT_SECONDS: ${{ vars.SECOP_TIMEOUT_SECONDS || '120' }}
       SEMANTIC_SEARCH_MODULE: ${{ vars.SEMANTIC_SEARCH_MODULE }}
       DEFAULT_SEMANTIC_QUERY: ${{ vars.DEFAULT_SEMANTIC_QUERY }}
+      SEMANTIC_MODEL_NAME: ${{ vars.SEMANTIC_MODEL_NAME || 'paraphrase-multilingual-MiniLM-L12-v2' }}
+      SEMANTIC_SIMILARITY_MIN: ${{ vars.SEMANTIC_SIMILARITY_MIN || '0.25' }}
+      SEMANTIC_TOP_K: ${{ vars.SEMANTIC_TOP_K || '250' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

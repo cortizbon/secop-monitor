@@ -14,7 +14,7 @@ MVP inicial para monitorear contratación pública desde SECOP I y SECOP II.
 - produce métricas agregadas para el dashboard
 - genera reportes HTML semanales y mensuales
 - expone un dashboard simple en Streamlit
-- deja listo un punto de integración para reportes semánticos
+- genera reportes temáticos con búsqueda semántica usando Sentence Transformers
 
 ## Estructura
 
@@ -43,11 +43,25 @@ Por defecto, el proyecto ya apunta a estos datasets públicos:
 
 Si prefieres otra fuente, puedes cambiar `SECOP_I_DATASET_ID`, `SECOP_II_DATASET_ID`, `SECOP_I_URL` o `SECOP_II_URL`.
 
+## Búsqueda semántica
+
+La parte semántica del pipeline quedó alineada con el buscador de [main.py](../Buscador_contratos/main.py), pero adaptada a ejecución batch.
+
+Usa por defecto:
+
+- modelo `paraphrase-multilingual-MiniLM-L12-v2`
+- umbral `SEMANTIC_SIMILARITY_MIN=0.25`
+- máximo `SEMANTIC_TOP_K=250`
+
+Puedes generar un reporte temático con:
+
+- `python -m pipeline.main semantic-report --query "salud pública"`
+
 ## Pendientes importantes
 
 - validar si estos datasets cubren exactamente el universo que quieres monitorear
 - afinar la llave canónica de actualización para casos límite
-- integrar el buscador semántico ya existente
+- calibrar el umbral semántico según tus temas de monitoreo
 - decidir despliegue final del dashboard
 
 ## Esquema canónico actual
