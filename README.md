@@ -24,6 +24,7 @@ MVP inicial para monitorear contratación pública desde SECOP I y SECOP II.
 - [pipeline/schema.py](pipeline/schema.py): normalización de columnas
 - [pipeline/reconcile.py](pipeline/reconcile.py): deduplicación, retención y métricas
 - [pipeline/reporting.py](pipeline/reporting.py): reportes HTML
+- [pipeline/semantic_engine.py](pipeline/semantic_engine.py): motor semántico compartido
 - [.github/workflows/daily_pipeline.yml](.github/workflows/daily_pipeline.yml): ejecución diaria
 
 ## Primer uso
@@ -46,6 +47,8 @@ Si prefieres otra fuente, puedes cambiar `SECOP_I_DATASET_ID`, `SECOP_II_DATASET
 ## Búsqueda semántica
 
 La parte semántica del pipeline quedó alineada con el buscador de [main.py](../Buscador_contratos/main.py), pero adaptada a ejecución batch.
+
+El mismo motor semántico se reutiliza también en el dashboard de [app/streamlit_app.py](app/streamlit_app.py) para búsquedas temáticas interactivas sobre contratos recientes.
 
 Usa por defecto:
 

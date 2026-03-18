@@ -6,8 +6,12 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+from pipeline.config import SEMANTIC_SIMILARITY_MIN, SEMANTIC_TOP_K
+from pipeline.semantic import search_contracts
+
 BASE_DIR = Path(__file__).resolve().parents[1]
 CURRENT_CONTRACTS_PATH = BASE_DIR / "data" / "current" / "contracts_last_180_days.parquet"
+WEEKLY_CONTRACTS_PATH = BASE_DIR / "data" / "current" / "contracts_last_7_days.parquet"
 DAILY_METRICS_PATH = BASE_DIR / "data" / "marts" / "daily_metrics.parquet"
 ENTITY_METRICS_PATH = BASE_DIR / "data" / "marts" / "entity_metrics.parquet"
 MODALITY_METRICS_PATH = BASE_DIR / "data" / "marts" / "modality_metrics.parquet"
@@ -37,7 +41,18 @@ def list_reports() -> list[Path]:
     return sorted(REPORTS_DIR.glob("**/*.html"), reverse=True)
 
 
+@st.cache_data(show_spinner="Ejecutando búsqueda semántica...")
+def run_semantic_search(dataframe: pd.DataFrame, query: str, similarity_min: float, top_k: int) -> pd.DataFrame:
+    return search_contracts(
+        dataframe,
+        query=query,
+        similarity_min=similarity_min,
+        top_k=top_k,
+    )
+
+
 contracts = load_parquet(CURRENT_CONTRACTS_PATH)
+weekly_contracts = load_parquet(WEEKLY_CONTRACTS_PATH)
 daily_metrics = load_parquet(DAILY_METRICS_PATH)
 entity_metrics = load_parquet(ENTITY_METRICS_PATH)
 modality_metrics = load_parquet(MODALITY_METRICS_PATH)
@@ -148,6 +163,75 @@ recent_view = recent_view.rename(
     }
 )
 st.dataframe(recent_view, use_container_width=True, hide_index=True)
+
+st.subheader("Búsqueda temática")
+semantic_base = weekly_contracts.copy()
+if selected_sources:
+    semantic_base = semantic_base[semantic_base["source_system"].isin(selected_sources)]
+
+semantic_query = st.text_input(
+    "Consulta semántica sobre contratos recientes",
+    value="",
+    placeholder="Ejemplo: dotación hospitalaria o transporte escolar",
+)
+
+semantic_help_col, semantic_action_col = st.columns((3, 1))
+with semantic_help_col:
+    st.caption("Esta búsqueda usa el mismo motor semántico que el pipeline y trabaja sobre la ventana semanal.")
+with semantic_action_col:
+    run_semantic = st.button("Buscar contratos similares", type="primary")
+
+if run_semantic:
+    if not semantic_query.strip():
+        st.warning("Escribe una consulta para ejecutar la búsqueda semántica.")
+    elif semantic_base.empty:
+        st.warning("No hay contratos semanales disponibles para la búsqueda semántica.")
+    else:
+        semantic_results = run_semantic_search(
+            semantic_base,
+            query=semantic_query.strip(),
+            similarity_min=SEMANTIC_SIMILARITY_MIN,
+            top_k=min(SEMANTIC_TOP_K, 100),
+        )
+        if semantic_results.empty:
+            st.info("No se encontraron contratos suficientemente similares para esa consulta.")
+        else:
+            semantic_amount = pd.to_numeric(semantic_results["amount_value"], errors="coerce").fillna(0)
+            sr1, sr2, sr3 = st.columns(3)
+            sr1.metric("Resultados", f"{len(semantic_results):,}".replace(",", "."))
+            sr2.metric("Monto acumulado", format_currency(float(semantic_amount.sum())))
+            sr3.metric("Score máximo", f"{semantic_results['semantic_score'].max():.3f}")
+
+            semantic_view = semantic_results[
+                [
+                    "semantic_score",
+                    "reference_date",
+                    "source_system",
+                    "entity_name",
+                    "supplier_name",
+                    "amount_value",
+                    "contract_object",
+                ]
+            ].copy()
+            semantic_view["reference_date"] = pd.to_datetime(
+                semantic_view["reference_date"], utc=True
+            ).dt.strftime("%Y-%m-%d")
+            semantic_view["amount_value"] = pd.to_numeric(
+                semantic_view["amount_value"], errors="coerce"
+            ).fillna(0).map(format_currency)
+            semantic_view["semantic_score"] = semantic_view["semantic_score"].map(lambda value: f"{value:.3f}")
+            semantic_view = semantic_view.rename(
+                columns={
+                    "semantic_score": "Score",
+                    "reference_date": "Fecha",
+                    "source_system": "Fuente",
+                    "entity_name": "Entidad",
+                    "supplier_name": "Proveedor",
+                    "amount_value": "Valor",
+                    "contract_object": "Objeto",
+                }
+            )
+            st.dataframe(semantic_view, use_container_width=True, hide_index=True)
 
 with st.expander("Métricas precalculadas"):
     left, right = st.columns(2)
