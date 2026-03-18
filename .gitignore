@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+.env
+.pytest_cache/
+.mypy_cache/
+.DS_Store
+
+# Streamlit
+.streamlit/
+
+# Local editor state
+.vscode/
+
+# Generated files
+*.html
+*.pdf
+
+# Keep generated data versioned except raw cache
+# data/raw can be large; keep placeholders only by default
+data/raw/**
+!data/raw/**/.gitkeep

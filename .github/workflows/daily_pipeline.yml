@@ -1,0 +1,66 @@
+name: Daily SECOP Pipeline
+
+on:
+  schedule:
+    - cron: '10 10 * * *'
+  workflow_dispatch:
+    inputs:
+      semantic_query:
+        description: Consulta opcional para generar reporte temático
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-data:
+    runs-on: ubuntu-latest
+    env:
+      SOCRATA_BASE_URL: ${{ vars.SOCRATA_BASE_URL || 'https://www.datos.gov.co' }}
+      SOCRATA_APP_TOKEN: ${{ secrets.SOCRATA_APP_TOKEN }}
+      SOCRATA_PAGE_SIZE: ${{ vars.SOCRATA_PAGE_SIZE || '50000' }}
+      SECOP_I_URL: ${{ vars.SECOP_I_URL }}
+      SECOP_II_URL: ${{ vars.SECOP_II_URL }}
+      SECOP_I_DATASET_ID: ${{ vars.SECOP_I_DATASET_ID || 'qddk-cgux' }}
+      SECOP_II_DATASET_ID: ${{ vars.SECOP_II_DATASET_ID || 'ay65-guja' }}
+      SECOP_I_UPDATE_FIELD: ${{ vars.SECOP_I_UPDATE_FIELD || 'ultima_actualizacion' }}
+      SECOP_II_UPDATE_FIELD: ${{ vars.SECOP_II_UPDATE_FIELD || 'ultima_actualizacion' }}
+      RETENTION_DAYS: ${{ vars.RETENTION_DAYS || '180' }}
+      WEEKLY_DAYS: ${{ vars.WEEKLY_DAYS || '7' }}
+      MONTHLY_DAYS: ${{ vars.MONTHLY_DAYS || '30' }}
+      SECOP_TIMEOUT_SECONDS: ${{ vars.SECOP_TIMEOUT_SECONDS || '120' }}
+      SEMANTIC_SEARCH_MODULE: ${{ vars.SEMANTIC_SEARCH_MODULE }}
+      DEFAULT_SEMANTIC_QUERY: ${{ vars.DEFAULT_SEMANTIC_QUERY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run daily pipeline
+        run: python -m pipeline.main daily
+
+      - name: Optional semantic report
+        if: ${{ github.event.inputs.semantic_query != '' }}
+        run: python -m pipeline.main semantic-report --query "${{ github.event.inputs.semantic_query }}"
+
+      - name: Commit generated artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/current data/marts reports
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: refresh secop monitor artifacts"
+            git push
+          fi

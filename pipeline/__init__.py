@@ -1,0 +1,1 @@
+"""SECOP monitor pipeline package."""
