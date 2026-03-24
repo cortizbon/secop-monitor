@@ -19,11 +19,11 @@ jobs:
     env:
       SOCRATA_BASE_URL: ${{ vars.SOCRATA_BASE_URL || 'https://www.datos.gov.co' }}
       SOCRATA_APP_TOKEN: ${{ secrets.SOCRATA_APP_TOKEN }}
-      SOCRATA_PAGE_SIZE: ${{ vars.SOCRATA_PAGE_SIZE || '50000' }}
+      SOCRATA_PAGE_SIZE: ${{ vars.SOCRATA_PAGE_SIZE || '10000' }}
       SECOP_I_URL: ${{ vars.SECOP_I_URL }}
       SECOP_II_URL: ${{ vars.SECOP_II_URL }}
-      SECOP_I_DATASET_ID: ${{ vars.SECOP_I_DATASET_ID || 'qddk-cgux' }}
-      SECOP_II_DATASET_ID: ${{ vars.SECOP_II_DATASET_ID || 'ay65-guja' }}
+      SECOP_I_DATASET_ID: ${{ vars.SECOP_I_DATASET_ID || 'f789-7hwg' }}
+      SECOP_II_DATASET_ID: ${{ vars.SECOP_II_DATASET_ID || 'jbjy-vk9h' }}
       SECOP_I_UPDATE_FIELD: ${{ vars.SECOP_I_UPDATE_FIELD || 'ultima_actualizacion' }}
       SECOP_II_UPDATE_FIELD: ${{ vars.SECOP_II_UPDATE_FIELD || 'ultima_actualizacion' }}
       RETENTION_DAYS: ${{ vars.RETENTION_DAYS || '180' }}

@@ -5,8 +5,8 @@ MVP inicial para monitorear contratación pública desde SECOP I y SECOP II.
 ## Qué hace hoy
 
 - descarga fuentes públicas reales desde datos.gov.co por defecto
-- usa SECOP I histórico con contratos en `qddk-cgux`
-- usa SECOP II contratos electrónicos en `ay65-guja`
+- usa SECOP I histórico con contratos en `f789-7hwg`
+- usa SECOP II con contratos electrónicos en `jbjy-vk9h`
 - también admite archivos locales o URLs personalizadas
 - normaliza SECOP I y SECOP II a un esquema común
 - conserva una ventana operativa de últimos 180 días
@@ -32,15 +32,16 @@ MVP inicial para monitorear contratación pública desde SECOP I y SECOP II.
 1. Crear entorno virtual e instalar dependencias.
 2. Copiar [.env.example](.env.example) solo si quieres cambiar defaults.
 3. Opcional: definir `SOCRATA_APP_TOKEN` para mejorar límites de la API.
-4. Ejecutar el pipeline:
+4. Para datasets grandes, el proyecto usa paginación Socrata con tamaño por defecto de `10000`.
+5. Ejecutar el pipeline:
    - `python -m pipeline.main daily`
-5. Levantar la app:
+6. Levantar la app:
    - `streamlit run app/streamlit_app.py`
 
 Por defecto, el proyecto ya apunta a estos datasets públicos:
 
-- SECOP I: `qddk-cgux`
-- SECOP II: `ay65-guja`
+- SECOP I: `f789-7hwg`
+- SECOP II: `jbjy-vk9h`
 
 Si prefieres otra fuente, puedes cambiar `SECOP_I_DATASET_ID`, `SECOP_II_DATASET_ID`, `SECOP_I_URL` o `SECOP_II_URL`.
 

@@ -16,7 +16,7 @@ MONTHLY_DAYS = int(os.getenv("MONTHLY_DAYS", "30"))
 SECOP_TIMEOUT_SECONDS = int(os.getenv("SECOP_TIMEOUT_SECONDS", "120"))
 SOCRATA_BASE_URL = os.getenv("SOCRATA_BASE_URL", "https://www.datos.gov.co").strip().rstrip("/")
 SOCRATA_APP_TOKEN = os.getenv("SOCRATA_APP_TOKEN", "").strip()
-SOCRATA_PAGE_SIZE = int(os.getenv("SOCRATA_PAGE_SIZE", "50000"))
+SOCRATA_PAGE_SIZE = int(os.getenv("SOCRATA_PAGE_SIZE", "10000"))
 SEMANTIC_SEARCH_MODULE = os.getenv("SEMANTIC_SEARCH_MODULE", "").strip()
 DEFAULT_SEMANTIC_QUERY = os.getenv("DEFAULT_SEMANTIC_QUERY", "").strip()
 SEMANTIC_MODEL_NAME = os.getenv("SEMANTIC_MODEL_NAME", "paraphrase-multilingual-MiniLM-L12-v2").strip()
@@ -27,14 +27,14 @@ SECOP_SOURCES = {
     "secop_i": {
         "url": os.getenv("SECOP_I_URL", "").strip(),
         "local_file": os.getenv("SECOP_I_LOCAL_FILE", "").strip(),
-        "dataset_id": os.getenv("SECOP_I_DATASET_ID", "qddk-cgux").strip(),
+        "dataset_id": os.getenv("SECOP_I_DATASET_ID", "f789-7hwg").strip(),
         "update_field": os.getenv("SECOP_I_UPDATE_FIELD", "ultima_actualizacion").strip(),
         "raw_dir": RAW_DIR / "secop_i",
     },
     "secop_ii": {
         "url": os.getenv("SECOP_II_URL", "").strip(),
         "local_file": os.getenv("SECOP_II_LOCAL_FILE", "").strip(),
-        "dataset_id": os.getenv("SECOP_II_DATASET_ID", "ay65-guja").strip(),
+        "dataset_id": os.getenv("SECOP_II_DATASET_ID", "jbjy-vk9h").strip(),
         "update_field": os.getenv("SECOP_II_UPDATE_FIELD", "ultima_actualizacion").strip(),
         "raw_dir": RAW_DIR / "secop_ii",
     },

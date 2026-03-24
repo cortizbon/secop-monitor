@@ -116,28 +116,37 @@ def _fetch_socrata_dataset(source_name: str, dataset_id: str, update_field: str,
     session = requests.Session()
     rows: list[dict] = []
     offset = 0
+    page_size = SOCRATA_PAGE_SIZE
 
     while True:
-        response = session.get(
-            _build_socrata_url(dataset_id),
-            params={
-                "$limit": SOCRATA_PAGE_SIZE,
-                "$offset": offset,
-                "$order": f"{update_field} ASC",
-                "$where": f"{update_field} >= '{since}'",
-            },
-            headers=headers,
-            timeout=SECOP_TIMEOUT_SECONDS,
-        )
-        response.raise_for_status()
+        try:
+            response = session.get(
+                _build_socrata_url(dataset_id),
+                params={
+                    "$limit": page_size,
+                    "$offset": offset,
+                    "$order": f"{update_field} ASC",
+                    "$where": f"{update_field} >= '{since}'",
+                },
+                headers=headers,
+                timeout=SECOP_TIMEOUT_SECONDS,
+            )
+            response.raise_for_status()
+        except requests.HTTPError as error:
+            status_code = error.response.status_code if error.response is not None else None
+            if status_code and status_code >= 500 and page_size > 1000:
+                page_size = max(1000, page_size // 2)
+                continue
+            raise
+
         page = response.json()
         if not isinstance(page, list) or not page:
             break
 
         rows.extend(page)
-        if len(page) < SOCRATA_PAGE_SIZE:
+        if len(page) < page_size:
             break
-        offset += SOCRATA_PAGE_SIZE
+        offset += page_size
 
     dataframe = _flatten_object_columns(pd.json_normalize(rows) if rows else pd.DataFrame())
     raw_path = _write_raw_dataframe(raw_dir, dataframe)
